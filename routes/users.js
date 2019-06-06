@@ -35,7 +35,7 @@ router.post("/signup", (req, res) => {
     .then(createdUser => {
       res.status(201).json({
         isSuccess: true,
-        token: generateUserToken(createdUser.userID)
+        token: generateUserToken(createdUser._id)
       });
     })
     .catch(err => {
@@ -48,7 +48,6 @@ router.post("/signup", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  console.log(req.body);
   User.findOne({ userID: req.body.userID })
     .then(user => {
       if (user === null) {
@@ -60,7 +59,7 @@ router.post("/login", (req, res) => {
         if (isValid) {
           res.status(201).json({
             isSuccess: true,
-            token: generateUserToken(user.userID)
+            token: generateUserToken(user._id)
           });
         }
         //res.status(201).json({ isSuccess: false, message: "Invalid password" });

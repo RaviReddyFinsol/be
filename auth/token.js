@@ -8,14 +8,16 @@ var generateToken = UserID => {
   return token;
 };
 
-var getUserNameFromToken = token => {
+var getUserIdFromToken = token => {
+  let userID = 0;
   jwt.verify(token, secretKey, function(err, decoded) {
-    if (err) return "";
-    return decoded.userID;
+    if (err) userID = 0;
+    else userID = decoded.userID;
   });
+  return userID;
 };
 
 module.exports = {
   generateToken,
-  getUserNameFromToken
+  getUserIdFromToken
 };

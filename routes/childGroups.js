@@ -3,7 +3,7 @@ const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
 
-const Group = require("../models/group");
+const ChildGroup = require("../models/childGroup");
 const { getUserIdFromToken } = require("../auth/token");
 
 const fs = require("fs");
@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage }).single("image");
 
-router.post("/group/add", function(req, res) {
+router.post("/childGroup/add", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
       return res
@@ -34,23 +34,21 @@ router.post("/group/add", function(req, res) {
     }
     let userID = getUserIdFromToken(req.body.token);
     if (userID !== 0) {
-      var group = new Group({
-        groupName: req.body.groupName,
+      var childGroup = new ChildGroup({
+          subGroupName : req.body.subGroupName,
+        childGroupName: req.body.childGroupName,
         imagePath: fileName,
-        user: userID
+        user: userID,
       });
-      group
+      childGroup
         .save()
-        .then(createdGroup => {
+        .then(createdChildGroup => {
           res.status(201).json({
             isSuccess: true,
-            message: "Group added successfully"
-          });          
+            message: "ChildGroup added successfully"
+          });
         })
         .catch(err => {
-          if(fileName !== ""){
-            fs.unlink(`/public/${fileName}`);
-          }
           res.status(201).json({
             isSuccess: false,
             message: "Something went wrong.Please try again"
@@ -61,35 +59,32 @@ router.post("/group/add", function(req, res) {
         isSuccess: false,
         message: "Session expired.Please login again."
       });
-      if(fileName !== ""){
-        fs.unlink(`/public/${fileName}`);
-      }
     }
   });
 });
 
-router.get("/groups", function(req, res) {
+router.get("/childGroups", function(req, res) {
   let userID = 0;
   if (req.query.token !== undefined) {
     userID = getUserIdFromToken(req.query.token);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
-  Group.find({}, function(err, groups) {
-    var groupsMap = [];
-    groups.forEach(function(group) {
-      group.imagePath = url + group.imagePath;
-      if (group.user === userID) group.isEditable = true;
-      else group.isEditable = false;
-      groupsMap.push(group);
+  ChildGroup.find({}, function(err, childGroups) {
+    var childGroupsMap = [];
+    childGroups.forEach(function(childGroup) {
+      childGroup.imagePath = url + childGroup.imagePath;
+      if (childGroup.user === userID) childGroup.isEditable = true;
+      else childGroup.isEditable = false;
+      childGroupsMap.push(childGroup);
     });
     res.status(201).json({
       isSuccess: false,
-      groups: groupsMap
+      childGroups: childGroups
     });
   });
 });
 
-router.post("/group/edit", function(req, res) {
+router.post("/childGroup/edit", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
       return res.status(201).json({
@@ -98,30 +93,29 @@ router.post("/group/edit", function(req, res) {
       });
     }
     let userID = getUserIdFromToken(req.body.userID);
-    let fileName = "";
-    if (req.file !== undefined) {
-      fileName = req.file.fileName;
-    }
     if (userID !== 0) {
-      var group = {
-        groupName: req.body.groupName,
-        imagePath: fileName
+      let fileName = "";
+      if (req.file !== undefined) {
+        fileName = req.file.fileName;
+      }
+      var childGroup = {
+          subGroupName : req.body.subGroupName,
+        childGroupName: req.body.childGroupName,
+        imagePath: fileName,
       };
-      Group.findByIdAndUpdate(
-        { _id: req.body.groupID, user: userID },
-        group,
+      ChildGroup.findByIdAndUpdate(
+        { _id: req.body.childGroupID, user: userID },
+        childGroup,
         function(err) {
           if (err) {
             res.status(201).json({
               isSuccess: false,
-              message: "Group not exists"
+              message: "ChildGroup not exists"
             });
-            if(fileName !== "")
-              fs.unlink(`/public/${fileName}`);
           } else {
             res.status(201).json({
               isSuccess: true,
-              message: "Group updated"
+              message: "ChildGroup updated"
             });
           }
         }
@@ -131,39 +125,37 @@ router.post("/group/edit", function(req, res) {
         isSuccess: false,
         message: "Session expired.Please login again."
       });
-      if(fileName !== "")
-        fs.unlink(`/public/${fileName}`);
     }
   });
 });
 
-router.get("/group", function(req, res) {
+router.get("/childGroup", function(req, res) {
   let userID = getUserIdFromToken(req.query.token);
   if (userID !== 0) {
-    Group.findOne({ _id: req.query.groupID, user: userID }, function(err, obj) {
+    ChildGroup.findOne({ _id: req.query.childGroupID, user: userID }, function(err, obj) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
-          message: "Group not found"
+          message: "ChildGroup not found"
         });
       } else {
         const url = req.protocol + "://" + req.get("host") + "/";
         obj.imagePath = url + obj.imagePath;
         res.status(201).json({
           isSuccess: true,
-          message: "Group updated",
-          group: obj
+          message: "ChildGroup updated",
+          childGroup: obj
         });
       }
     });
   }
 });
 
-router.delete("/group", function(req, res) {
+router.delete("/childGroup", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    Group.findOneAndDelete({ _id: req.query.groupID, user: userID }, function(
-      err,group
+    ChildGroup.findByIdAndRemove({ _id: req.query.childGroupID, user: userID }, function(
+      err
     ) {
       if (err) {
         res.status(201).json({
@@ -173,10 +165,8 @@ router.delete("/group", function(req, res) {
       } else {
         res.status(201).json({
           isSuccess: true,
-          message: "Group deleted"
+          message: "Child Group deleted"
         });
-        if(group.imagePath !== "")
-          fs.unlink(`/public/${group.imagePath}`);
       }
     });
   } else {

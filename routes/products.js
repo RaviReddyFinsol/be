@@ -3,7 +3,7 @@ const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
 
-const Group = require("../models/group");
+const Product = require("../models/product");
 const { getUserIdFromToken } = require("../auth/token");
 
 const fs = require("fs");
@@ -19,9 +19,9 @@ var storage = multer.diskStorage({
   }
 });
 
-var upload = multer({ storage: storage }).single("image");
+var upload = multer({ storage: storage }).array("image");
 
-router.post("/group/add", function(req, res) {
+router.post("/product/add", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
       return res
@@ -34,14 +34,24 @@ router.post("/group/add", function(req, res) {
     }
     let userID = getUserIdFromToken(req.body.token);
     if (userID !== 0) {
-      var group = new Group({
-        groupName: req.body.groupName,
+      var product = new Product({
+        productName: req.body.productName,
+        dietType : req.body.dietType,
+        path : req.body.path,
+        brand : req.body.brand,
+        description : req.body.description,
+        ingredients : req.body.ingredients,
+        healthBenifits : req.body.healthBenifits,
+        validity : req.body.validity, 
+        manufactureDetails : req.body.manufactureDetails,
+        sellerDetails : req.body.sellerDetails,
+        user: userID,
+        
         imagePath: fileName,
-        user: userID
       });
-      group
+      product
         .save()
-        .then(createdGroup => {
+        .then(createdProduct => {
           res.status(201).json({
             isSuccess: true,
             message: "Group added successfully"
@@ -68,16 +78,16 @@ router.post("/group/add", function(req, res) {
   });
 });
 
-router.get("/groups", function(req, res) {
+router.get("/products", function(req, res) {
   let userID = 0;
   if (req.query.token !== undefined) {
     userID = getUserIdFromToken(req.query.token);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
-  Group.find({}, function(err, groups) {
-    var groupsMap = [];
-    groups.forEach(function(group) {
-      group.imagePath = url + group.imagePath;
+  Product.find({}, function(err, products) {
+    var productsMap = [];
+    products.forEach(function(product) {
+      group.imagePath = url + product.imagePath;
       if (group.user === userID) group.isEditable = true;
       else group.isEditable = false;
       groupsMap.push(group);
@@ -89,7 +99,7 @@ router.get("/groups", function(req, res) {
   });
 });
 
-router.post("/group/edit", function(req, res) {
+router.post("/product/edit", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
       return res.status(201).json({
@@ -159,7 +169,7 @@ router.get("/group", function(req, res) {
   }
 });
 
-router.delete("/group", function(req, res) {
+router.delete("/product", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     Group.findOneAndDelete({ _id: req.query.groupID, user: userID }, function(
