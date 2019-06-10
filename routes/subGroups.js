@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage }).single("image");
 
-router.post("/subGroup/add", function(req, res) {
+router.post("/add", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
       return res
@@ -30,19 +30,21 @@ router.post("/subGroup/add", function(req, res) {
     }
     let fileName = "";
     if (req.file !== undefined) {
-      fileName = req.file.fileName;
+      fileName = req.file.filename;
     }
+    console.log(req.file);
     let userID = getUserIdFromToken(req.body.token);
     if (userID !== 0) {
       var subGroup = new SubGroup({
-          subGroupName : req.body.subGroupName,
+        subGroupName: req.body.subGroupName,
         groupName: req.body.groupName,
         imagePath: fileName,
-        user: userID,
+        user: userID
       });
       subGroup
         .save()
         .then(createdSubGroup => {
+          console.log(createdSubGroup);
           res.status(201).json({
             isSuccess: true,
             message: "SubGroup added successfully"
@@ -78,8 +80,8 @@ router.get("/subGroups", function(req, res) {
       subGroupsMap.push(subGroup);
     });
     res.status(201).json({
-      isSuccess: false,
-      subGroups: subGroups
+      isSuccess: true,
+      subGroups: subGroupsMap
     });
   });
 });
@@ -99,9 +101,9 @@ router.post("/subGroup/edit", function(req, res) {
         fileName = req.file.fileName;
       }
       var subGroup = {
-          subGroupName : req.body.subGroupName,
+        subGroupName: req.body.subGroupName,
         groupName: req.body.groupName,
-        imagePath: fileName,
+        imagePath: fileName
       };
       SubGroup.findByIdAndUpdate(
         { _id: req.body.subGroupID, user: userID },
@@ -130,9 +132,12 @@ router.post("/subGroup/edit", function(req, res) {
 });
 
 router.get("/subGroup", function(req, res) {
-  let userID = getUserIdFromToken(req.query.token);
+  let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    SubGroup.findOne({ _id: req.query.subGroupID, user: userID }, function(err, obj) {
+    SubGroup.findOne({ _id: req.query.subGroupID, user: userID }, function(
+      err,
+      obj
+    ) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
@@ -154,24 +159,25 @@ router.get("/subGroup", function(req, res) {
 router.delete("/subGroup", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    SubGroup.findByIdAndRemove({ _id: req.query.subGroupID, user: userID }, function(
-      err
-    ) {
-      if (err) {
-        res.status(201).json({
-          isSuccess: false,
-          message: "Something went wrong.Please try again"
-        });
-      } else {
-        res.status(201).json({
-          isSuccess: true,
-          message: "SubGroup deleted"
-        });
+    SubGroup.findByIdAndRemove(
+      { _id: req.query.subGroupID, user: userID },
+      function(err) {
+        if (err) {
+          res.status(201).json({
+            isSuccess: false,
+            message: "Something went wrong.Please try again"
+          });
+        } else {
+          res.status(201).json({
+            isSuccess: true,
+            message: "SubGroup deleted"
+          });
+        }
       }
-    });
+    );
   } else {
     res.status(201).json({
-      isSuccess: true,
+      isSuccess: false,
       message: "Session expires.Please login again."
     });
   }

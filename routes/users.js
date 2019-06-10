@@ -7,7 +7,6 @@ var Token = require("../auth/token");
 var generateUserToken = Token.generateToken;
 
 router.get("", (req, res) => {
-  console.log("get called");
   User.find()
     .then(users => {
       res.status(200).json({

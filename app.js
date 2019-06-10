@@ -21,7 +21,10 @@ mongoose
     console.log("Connection failed!", err);
   });
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public/groups"));
+app.use(express.static(__dirname + "/public/subGroups"));
+app.use(express.static(__dirname + "/public/childGroups"));
+app.use(express.static(__dirname + "/public/products"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
