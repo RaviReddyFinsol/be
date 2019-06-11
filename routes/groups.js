@@ -85,22 +85,26 @@ router.get("/", function(req, res) {
 });
 
 router.put("/", function(req, res) {
-  let userID = getUserIdFromToken(req.body.userID);
-  let group = Group.findById(req.query.groupID);
+  //console.log(req.query);
+  let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
-   return res.status(201).json({
+    return res.status(201).json({
       isSuccess: false,
       message: "Session expired.Please login again."
     });
   }
+  let group;
+  Group.find({ _id: req.query.groupID }, function(error, existGroup) {
+    group = existGroup;
+  });
   if (group === undefined) {
-   return res.status(201).json({
+    return res.status(201).json({
       isSuccess: false,
       message: "Group not exists"
     });
   }
   if (group.user !== userID) {
-  return  res.status(201).json({
+    return res.status(201).json({
       isSuccess: false,
       message: "Can't modify Group.Access denied"
     });
@@ -140,7 +144,7 @@ router.put("/", function(req, res) {
 });
 
 router.get("/group", function(req, res) {
-  let userID = getUserIdFromToken(req.query.token);
+  let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     Group.findById({ _id: req.query.groupID }, function(err, group) {
       if (err) {
@@ -159,7 +163,6 @@ router.get("/group", function(req, res) {
           group.imagePath = url + group.imagePath;
           res.status(201).json({
             isSuccess: true,
-            message: "Group updated",
             group: group
           });
         }
