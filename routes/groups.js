@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage }).single("image");
 
-router.post("/group/add", function(req, res) {
+router.post("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     upload(req, res, function(err) {
@@ -63,7 +63,7 @@ router.post("/group/add", function(req, res) {
   }
 });
 
-router.get("/groups", function(req, res) {
+router.get("/", function(req, res) {
   let userID = 0;
   if (req.query.userID !== undefined) {
     userID = getUserIdFromToken(req.query.userID);
@@ -78,31 +78,31 @@ router.get("/groups", function(req, res) {
       groupsMap.push(group);
     });
     res.status(201).json({
-      isSuccess: false,
+      isSuccess: true,
       groups: groupsMap
     });
   });
 });
 
-router.post("/group/edit", function(req, res) {
+router.put("/", function(req, res) {
   let userID = getUserIdFromToken(req.body.userID);
   let group = Group.findById(req.query.groupID);
   if (userID === 0) {
-    res.status(201).json({
+   return res.status(201).json({
       isSuccess: false,
       message: "Session expired.Please login again."
     });
   }
   if (group === undefined) {
-    res.status(201).json({
+   return res.status(201).json({
       isSuccess: false,
       message: "Group not exists"
     });
   }
   if (group.user !== userID) {
-    res.status(201).json({
+  return  res.status(201).json({
       isSuccess: false,
-      message: "Can't modify group.Access denied"
+      message: "Can't modify Group.Access denied"
     });
   }
   upload(req, res, function(err) {
@@ -131,8 +131,8 @@ router.post("/group/edit", function(req, res) {
       })
       .catch(err => {
         res.status(201).json({
-          isSuccess: true,
-          message: "Group updated"
+          isSuccess: false,
+          message: "Something went wrong.Please try again"
         });
         deleteFile(fileName);
       });
@@ -156,7 +156,7 @@ router.get("/group", function(req, res) {
           });
         } else {
           const url = req.protocol + "://" + req.get("host") + "/";
-          obj.imagePath = url + obj.imagePath;
+          group.imagePath = url + group.imagePath;
           res.status(201).json({
             isSuccess: true,
             message: "Group updated",
@@ -168,7 +168,7 @@ router.get("/group", function(req, res) {
   }
 });
 
-router.delete("/group", function(req, res) {
+router.delete("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     Group.findOneAndDelete({ _id: req.query.groupID, user: userID }, function(
@@ -190,7 +190,7 @@ router.delete("/group", function(req, res) {
     });
   } else {
     res.status(201).json({
-      isSuccess: true,
+      isSuccess: false,
       message: "Session expires.Please login again."
     });
   }

@@ -10,7 +10,7 @@ const fs = require("fs");
 
 var storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, "public");
+    cb(null, "public/subGroups");
   },
   filename: function(req, file, cb) {
     var id = uuid();
@@ -21,54 +21,53 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage }).single("image");
 
-router.post("/add", function(req, res) {
-  upload(req, res, function(err) {
-    if (err) {
-      return res
-        .status(201)
-        .json({ isSuccess: false, message: "image not saved" });
-    }
-    let fileName = "";
-    if (req.file !== undefined) {
-      fileName = req.file.filename;
-    }
-    console.log(req.file);
-    let userID = getUserIdFromToken(req.body.token);
-    if (userID !== 0) {
+router.post("/", function(req, res) {
+  let userID = getUserIdFromToken(req.query.userID);
+  if (userID !== 0) {
+    upload(req, res, function(err) {
+      if (err) {
+        return res
+          .status(201)
+          .json({ isSuccess: false, message: "image not saved" });
+      }
+      let fileName = "";
+      if (req.file !== undefined) {
+        fileName = req.file.filename;
+      }
       var subGroup = new SubGroup({
+        group: req.body.group,
         subGroupName: req.body.subGroupName,
-        groupName: req.body.groupName,
         imagePath: fileName,
         user: userID
       });
       subGroup
         .save()
         .then(createdSubGroup => {
-          console.log(createdSubGroup);
           res.status(201).json({
             isSuccess: true,
             message: "SubGroup added successfully"
           });
         })
         .catch(err => {
+          deleteFile(fileName);
           res.status(201).json({
             isSuccess: false,
             message: "Something went wrong.Please try again"
           });
         });
-    } else {
-      res.status(201).json({
-        isSuccess: false,
-        message: "Session expired.Please login again."
-      });
-    }
-  });
+    });
+  } else {
+    res.status(201).json({
+      isSuccess: false,
+      message: "Session expired.Please login again."
+    });
+  }
 });
 
-router.get("/subGroups", function(req, res) {
+router.get("/", function(req, res) {
   let userID = 0;
-  if (req.query.token !== undefined) {
-    userID = getUserIdFromToken(req.query.token);
+  if (req.query.userID !== undefined) {
+    userID = getUserIdFromToken(req.query.userID);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
   SubGroup.find({}, function(err, subGroups) {
@@ -86,95 +85,110 @@ router.get("/subGroups", function(req, res) {
   });
 });
 
-router.post("/subGroup/edit", function(req, res) {
+router.put("/", function(req, res) {
+  let userID = getUserIdFromToken(req.body.userID);
+  let subGroup = SubGroup.findById(req.query.subGroupID);
+  if (userID === 0) {
+   return res.status(201).json({
+      isSuccess: false,
+      message: "Session expired.Please login again."
+    });
+  }
+  if (subGroup === undefined) {
+   return res.status(201).json({
+      isSuccess: false,
+      message: "SubGroup not exists"
+    });
+  }
+  if (subGroup.user !== userID) {
+   return res.status(201).json({
+      isSuccess: false,
+      message: "Can't modify SubGroup.Access denied"
+    });
+  }
   upload(req, res, function(err) {
     if (err) {
       return res.status(201).json({
         isSuccess: false,
-        message: "problem while saving Image"
+        message: "Problem while saving Image"
       });
     }
-    let userID = getUserIdFromToken(req.body.userID);
-    if (userID !== 0) {
-      let fileName = "";
-      if (req.file !== undefined) {
-        fileName = req.file.fileName;
-      }
-      var subGroup = {
-        subGroupName: req.body.subGroupName,
-        groupName: req.body.groupName,
-        imagePath: fileName
-      };
-      SubGroup.findByIdAndUpdate(
-        { _id: req.body.subGroupID, user: userID },
-        subGroup,
-        function(err) {
-          if (err) {
-            res.status(201).json({
-              isSuccess: false,
-              message: "SubGroup not exists"
-            });
-          } else {
-            res.status(201).json({
-              isSuccess: true,
-              message: "SubGroup updated"
-            });
-          }
-        }
-      );
-    } else {
-      res.status(201).json({
-        isSuccess: false,
-        message: "Session expired.Please login again."
-      });
+    const previuosFile = subGroup.imagePath;
+    let fileName = "";
+    if (req.file !== undefined) {
+      fileName = req.file.fileName;
     }
+
+    subGroup.imagePath = fileName;
+    subGroup.group = req.body.group;
+    subGroup.subGroupName = req.body.subGroupName;
+    subGroup
+      .update()
+      .then(i => {
+        res.status(201).json({
+          isSuccess: true,
+          message: "SubGroup updated"
+        });
+        deleteFile(previuosFile);
+      })
+      .catch(err => {
+        res.status(201).json({
+          isSuccess: false,
+          message: "Something went wrong.Please try again"
+        });
+        deleteFile(fileName);
+      });
   });
 });
 
 router.get("/subGroup", function(req, res) {
-  let userID = getUserIdFromToken(req.query.userID);
+  let userID = getUserIdFromToken(req.query.token);
   if (userID !== 0) {
-    SubGroup.findOne({ _id: req.query.subGroupID, user: userID }, function(
-      err,
-      obj
-    ) {
+    SubGroup.findById({ _id: req.query.subGroupID }, function(err, subGroup) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
           message: "SubGroup not found"
         });
       } else {
-        const url = req.protocol + "://" + req.get("host") + "/";
-        obj.imagePath = url + obj.imagePath;
-        res.status(201).json({
-          isSuccess: true,
-          message: "SubGroup updated",
-          subGroup: obj
-        });
+        if (subGroup.user !== userID) {
+          res.status(201).json({
+            isSuccess: false,
+            message: "Session expired.Please login again"
+          });
+        } else {
+          const url = req.protocol + "://" + req.get("host") + "/";
+          subGroup.imagePath = url + subGroup.imagePath;
+          res.status(201).json({
+            isSuccess: true,            
+            subGroup: subGroup
+          });
+        }
       }
     });
   }
 });
 
-router.delete("/subGroup", function(req, res) {
+router.delete("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    SubGroup.findByIdAndRemove(
-      { _id: req.query.subGroupID, user: userID },
-      function(err) {
-        if (err) {
-          res.status(201).json({
-            isSuccess: false,
-            message: "Something went wrong.Please try again"
-          });
-        } else {
-          res.status(201).json({
-            isSuccess: true,
-            message: "SubGroup deleted"
-          });
-        }
+    SubGroup.findOneAndDelete({ _id: req.query.subGroupID, user: userID }, function(
+      err,
+      subGroup
+    ) {
+      if (err) {
+        res.status(201).json({
+          isSuccess: false,
+          message: "Something went wrong.Please try again"
+        });
+      } else {
+        res.status(201).json({
+          isSuccess: true,
+          message: "SubGroup deleted"
+        });
+        deleteFile(subGroup.imagePath);
       }
-    );
+    });
   } else {
     res.status(201).json({
       isSuccess: false,
@@ -182,5 +196,43 @@ router.delete("/subGroup", function(req, res) {
     });
   }
 });
+
+router.get("/group", function(req, res) {
+  if(req.query.groupID !== undefined){
+  let userID = 0;
+  if (req.query.userID !== undefined) {
+    userID = getUserIdFromToken(req.query.userID);
+  }
+  const url = req.protocol + "://" + req.get("host") + "/";
+  SubGroup.find({group : req.query.groupID}, function(err, subGroups) {
+    var subGroupsMap = [];
+    subGroups.forEach(function(subGroup) {
+      subGroup.imagePath = url + subGroup.imagePath;
+      if (subGroup.user === userID) subGroup.isEditable = true;
+      else subGroup.isEditable = false;
+      subGroupsMap.push(subGroup);
+    });
+    res.status(201).json({
+      isSuccess: true,
+      subGroups: subGroupsMap
+    });
+  });
+}
+else{
+  res.status(201).json({
+    isSuccess: false,
+    message: "Group not found"
+  });
+}
+});
+
+const deleteFile = fileName => {
+  if (
+    (fs.exists(fileName),
+    () => {
+      fs.unlink(`/public/subGroups/${fileName}`);
+    })
+  );
+};
 
 module.exports = router;
