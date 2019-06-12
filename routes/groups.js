@@ -85,7 +85,6 @@ router.get("/", function(req, res) {
 });
 
 router.put("/", function(req, res) {
-  //console.log(req.query);
   let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
@@ -100,33 +99,49 @@ router.put("/", function(req, res) {
         message: "Problem while saving Image"
       });
     }
-    const previousFile = req.body.imagePath;
+
     let fileName = "";
     if (req.file !== undefined) {
-      fileName = req.file.fileName;
+      fileName = req.file.filename;
     }
-
-    var newGroup = new Group({
-      _id:req.query.groupID,user:req.user.userID,groupName:req.body.groupName,imagePath:fileName
-    });
-    Group.findOneAndUpdate({_id:req.query.groupID,user : req.query.userID},newGroup, (err)=>{
-      if(err){
+    Group.findById(req.query.groupID, function(err, group) {
+      if (err) {
         res.status(201).json({
           isSuccess: false,
-          message: "Group with same name alreay exists"
-        });
-        deleteFile(previousFile);
-      }
-      else{
-        res.status(201).json({
-          isSuccess: true,
-          message: "Group updated"
+          message: "Group with same name already exists"
         });
         deleteFile(fileName);
+      } else {
+        if (group.user === userID) {
+          const previousFile = group.imagePath;
+          group.imagePath = fileName;
+          group.groupName = req.body.groupName;
+          group
+            .save()
+            .then(data => {
+              deleteFile(previousFile);
+              res.status(201).json({
+                isSuccess: false,
+                message: "Group updated"
+              });
+            })
+            .catch(err => {
+              res.status(201).json({
+                isSuccess: false,
+                message: "Group not updated"
+              });
+              deleteFile(fileName);
+            });
+        } else {
+          res.status(201).json({
+            isSuccess: false,
+            message: "Access denied"
+          });
+          deleteFile(fileName);
+        }
       }
-    })
+    });
   });
- 
 });
 
 router.get("/group", function(req, res) {
@@ -186,12 +201,16 @@ router.delete("/", function(req, res) {
 });
 
 const deleteFile = fileName => {
-  if (
-    (fs.exists(fileName),
-    () => {
-      fs.unlink(`/public/groups/${fileName}`);
-    })
-  );
+  if (fileName !== undefined) {
+    let filePath = __dirname + "/public/groups/" + fileName;
+    console.log(filePath);
+    if (
+      (fs.exists(filePath),
+      () => {
+        fs.unlink(filePath);
+      })
+    );
+  }
 };
 
 module.exports = router;

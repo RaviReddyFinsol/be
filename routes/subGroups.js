@@ -34,9 +34,9 @@ router.post("/", function(req, res) {
       if (req.file !== undefined) {
         fileName = req.file.filename;
       }
-      var subGroup = new SubGroup({
+      var group = new Group({
         subGroupName: req.body.subGroupName,
-        group : req.body.group,
+        group: req.body.group,
         imagePath: fileName,
         user: userID
       });
@@ -107,26 +107,32 @@ router.put("/", function(req, res) {
     }
 
     var newSubGroup = new SubGroup({
-      _id:req.query.subGroupID,user:req.user.userID,group:req.body.group,subGroupName : req.body.subGroupName,imagePath:fileName
+      _id: req.query.subGroupID,
+      user: req.user.userID,
+      group: req.body.group,
+      subGroupName: req.body.subGroupName,
+      imagePath: fileName
     });
-    SubGroup.findOneAndUpdate({_id:req.query.subGroupID,user : req.query.userID},newSubGroup, (err)=>{
-      if(err){
-        res.status(201).json({
-          isSuccess: false,
-          message: "SubGroup with same name alreay exists"
-        });
-        deleteFile(previousFile);
+    SubGroup.findOneAndUpdate(
+      { _id: req.query.subGroupID, user: req.query.userID },
+      newSubGroup,
+      err => {
+        if (err) {
+          res.status(201).json({
+            isSuccess: false,
+            message: "SubGroup with same name alreay exists"
+          });
+          deleteFile(previousFile);
+        } else {
+          res.status(201).json({
+            isSuccess: true,
+            message: "SubGroup updated"
+          });
+          deleteFile(fileName);
+        }
       }
-      else{
-        res.status(201).json({
-          isSuccess: true,
-          message: "SubGroup updated"
-        });
-        deleteFile(fileName);
-      }
-    })
+    );
   });
- 
 });
 
 router.get("/group", function(req, res) {
@@ -135,7 +141,7 @@ router.get("/group", function(req, res) {
     userID = getUserIdFromToken(req.query.userID);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
-  SubGroup.find({group:req.query.groupID}, function(err, subGroups) {
+  SubGroup.find({ group: req.query.groupID }, function(err, subGroups) {
     var subGroupsMap = [];
     subGroups.forEach(function(subGroup) {
       subGroup.imagePath = url + subGroup.imagePath;
@@ -181,23 +187,23 @@ router.get("/subGroup", function(req, res) {
 router.delete("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    SubGroup.findOneAndDelete({ _id: req.query.subGroupID, user: userID }, function(
-      err,
-      subGroup
-    ) {
-      if (err) {
-        res.status(201).json({
-          isSuccess: false,
-          message: "Something went wrong.Please try again"
-        });
-      } else {
-        res.status(201).json({
-          isSuccess: true,
-          message: "SubGroup deleted"
-        });
-        deleteFile(subGroup.imagePath);
+    SubGroup.findOneAndDelete(
+      { _id: req.query.subGroupID, user: userID },
+      function(err, subGroup) {
+        if (err) {
+          res.status(201).json({
+            isSuccess: false,
+            message: "Something went wrong.Please try again"
+          });
+        } else {
+          res.status(201).json({
+            isSuccess: true,
+            message: "SubGroup deleted"
+          });
+          deleteFile(subGroup.imagePath);
+        }
       }
-    });
+    );
   } else {
     res.status(201).json({
       isSuccess: false,
