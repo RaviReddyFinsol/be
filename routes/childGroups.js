@@ -35,8 +35,8 @@ router.post("/", function(req, res) {
         fileName = req.file.filename;
       }
       var childGroup = new ChildGroup({
-        subGroup: req.body.subGroup,
         childGroupName: req.body.childGroupName,
+        subGroup : req.body.subGroup,
         imagePath: fileName,
         user: userID
       });
@@ -52,14 +52,14 @@ router.post("/", function(req, res) {
           deleteFile(fileName);
           res.status(201).json({
             isSuccess: false,
-            message: "Something went wrong.Please try again"
+            message: "ChildGroup with same name alreay exists"
           });
         });
     });
   } else {
     res.status(201).json({
       isSuccess: false,
-      message: "Session expired.Please login again"
+      message: "Session expired.Please login again."
     });
   }
 });
@@ -86,24 +86,11 @@ router.get("/", function(req, res) {
 });
 
 router.put("/", function(req, res) {
-  let userID = getUserIdFromToken(req.body.userID);
-  let childGroup = ChildGroup.findById(req.query.childGroupID);
+  let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
       isSuccess: false,
       message: "Session expired.Please login again."
-    });
-  }
-  if (childGroup === undefined) {
-    return res.status(201).json({
-      isSuccess: false,
-      message: "ChildGroup not exists"
-    });
-  }
-  if (childGroup.user !== userID) {
-    return res.status(201).json({
-      isSuccess: false,
-      message: "Can't modify ChildGroup.Access denied"
     });
   }
   upload(req, res, function(err) {
@@ -113,41 +100,60 @@ router.put("/", function(req, res) {
         message: "Problem while saving Image"
       });
     }
-    const previousFile = childGroup.imagePath;
+    const previousFile = req.body.imagePath;
     let fileName = "";
     if (req.file !== undefined) {
       fileName = req.file.fileName;
     }
 
-    childGroup.imagePath = fileName;
-    childGroup.group = req.body.subGroup;
-    childGroup.childGroupName = req.body.childGroupName;
-    childGroup
-      .update()
-      .then(i => {
+    var newChildGroup = new ChildGroup({
+      _id:req.query.childGroupID,user:req.user.userID,subGroup:req.body.subGroup,childGroupName : req.body.childGroupName,imagePath:fileName
+    });
+    ChildGroup.findOneAndUpdate({_id:req.query.childGroupID,user : req.query.userID},newChildGroup, (err)=>{
+      if(err){
+        res.status(201).json({
+          isSuccess: false,
+          message: "ChildGroup with same name alreay exists"
+        });
+        deleteFile(previousFile);
+      }
+      else{
         res.status(201).json({
           isSuccess: true,
           message: "ChildGroup updated"
         });
-        deleteFile(previousFile);
-      })
-      .catch(err => {
-        res.status(201).json({
-          isSuccess: false,
-          message: "Something went wrong.Please try again"
-        });
         deleteFile(fileName);
-      });
+      }
+    })
+  });
+ 
+});
+
+router.get("/subGroup", function(req, res) {
+  let userID = 0;
+  if (req.query.userID !== undefined) {
+    userID = getUserIdFromToken(req.query.userID);
+  }
+  const url = req.protocol + "://" + req.get("host") + "/";
+  ChildGroup.find({subGroup:req.query.subGroupID}, function(err, childGroups) {
+    var childGroupsMap = [];
+    childGroups.forEach(function(childGroup) {
+      childGroup.imagePath = url + childGroup.imagePath;
+      if (childGroup.user === userID) childGroup.isEditable = true;
+      else childGroup.isEditable = false;
+      childGroupsMap.push(childGroup);
+    });
+    res.status(201).json({
+      isSuccess: true,
+      childGroups: childGroupsMap
+    });
   });
 });
 
 router.get("/childGroup", function(req, res) {
-  let userID = getUserIdFromToken(req.query.token);
+  let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    ChildGroup.findById({ _id: req.query.childGroupID }, function(
-      err,
-      childGroup
-    ) {
+    ChildGroup.findById({ _id: req.query.childGroupID }, function(err, childGroup) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
@@ -175,58 +181,27 @@ router.get("/childGroup", function(req, res) {
 router.delete("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    ChildGroup.findOneAndDelete(
-      { _id: req.query.childGroupID, user: userID },
-      function(err, childGroup) {
-        if (err) {
-          res.status(201).json({
-            isSuccess: false,
-            message: "Something went wrong.Please try again"
-          });
-        } else {
-          res.status(201).json({
-            isSuccess: true,
-            message: "ChildGroup deleted"
-          });
-          deleteFile(childGroup.imagePath);
-        }
+    ChildGroup.findOneAndDelete({ _id: req.query.childGroupID, user: userID }, function(
+      err,
+      childGroup
+    ) {
+      if (err) {
+        res.status(201).json({
+          isSuccess: false,
+          message: "Something went wrong.Please try again"
+        });
+      } else {
+        res.status(201).json({
+          isSuccess: true,
+          message: "ChildGroup deleted"
+        });
+        deleteFile(childGroup.imagePath);
       }
-    );
+    });
   } else {
     res.status(201).json({
       isSuccess: false,
       message: "Session expires.Please login again."
-    });
-  }
-});
-
-router.get("/subroup", function(req, res) {
-  if (req.query.subGroupID !== undefined) {
-    let userID = 0;
-    if (req.query.userID !== undefined) {
-      userID = getUserIdFromToken(req.query.userID);
-    }
-    const url = req.protocol + "://" + req.get("host") + "/";
-    childGroup.find({ subGroup: req.query.subGroupID }, function(
-      err,
-      childGroups
-    ) {
-      var childGroupsMap = [];
-      childGroups.forEach(function(childGroup) {
-        childGroup.imagePath = url + childGroup.imagePath;
-        if (childGroup.user === userID) childGroup.isEditable = true;
-        else childGroup.isEditable = false;
-        childGroupsMap.push(childGroup);
-      });
-      res.status(201).json({
-        isSuccess: true,
-        childGroups: childGroupsMap
-      });
-    });
-  } else {
-    res.status(201).json({
-      isSuccess: false,
-      message: "SubGroup not found"
     });
   }
 });

@@ -51,7 +51,7 @@ router.post("/", function(req, res) {
           deleteFile(fileName);
           res.status(201).json({
             isSuccess: false,
-            message: "Something went wrong.Please try again"
+            message: "Group with same name alreay exists"
           });
         });
     });
@@ -93,22 +93,6 @@ router.put("/", function(req, res) {
       message: "Session expired.Please login again."
     });
   }
-  let group;
-  Group.find({ _id: req.query.groupID }, function(error, existGroup) {
-    group = existGroup;
-  });
-  if (group === undefined) {
-    return res.status(201).json({
-      isSuccess: false,
-      message: "Group not exists"
-    });
-  }
-  if (group.user !== userID) {
-    return res.status(201).json({
-      isSuccess: false,
-      message: "Can't modify Group.Access denied"
-    });
-  }
   upload(req, res, function(err) {
     if (err) {
       return res.status(201).json({
@@ -116,31 +100,33 @@ router.put("/", function(req, res) {
         message: "Problem while saving Image"
       });
     }
-    const previuosFile = group.imagePath;
+    const previousFile = req.body.imagePath;
     let fileName = "";
     if (req.file !== undefined) {
       fileName = req.file.fileName;
     }
 
-    group.imagePath = fileName;
-    group.groupName = req.body.groupName;
-    group
-      .update()
-      .then(i => {
+    var newGroup = new Group({
+      _id:req.query.groupID,user:req.user.userID,groupName:req.body.groupName,imagePath:fileName
+    });
+    Group.findOneAndUpdate({_id:req.query.groupID,user : req.query.userID},newGroup, (err)=>{
+      if(err){
+        res.status(201).json({
+          isSuccess: false,
+          message: "Group with same name alreay exists"
+        });
+        deleteFile(previousFile);
+      }
+      else{
         res.status(201).json({
           isSuccess: true,
           message: "Group updated"
         });
-        deleteFile(previuosFile);
-      })
-      .catch(err => {
-        res.status(201).json({
-          isSuccess: false,
-          message: "Something went wrong.Please try again"
-        });
         deleteFile(fileName);
-      });
+      }
+    })
   });
+ 
 });
 
 router.get("/group", function(req, res) {
