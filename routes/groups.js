@@ -200,16 +200,22 @@ router.delete("/", function(req, res) {
   }
 });
 
+
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = __dirname + "/public/groups/" + fileName;
-    console.log(filePath);
-    if (
-      (fs.exists(filePath),
-      () => {
-        fs.unlink(filePath);
-      })
-    );
+    let filePath = "/public/groups/" + fileName;
+    if(fs.existsSync(filePath)){
+      fs.unlink(filePath);
+    }
+    else{
+      console.log("File not found " + filePath);
+    }
+    // if (
+    //   (fs.exists(filePath),
+    //   (err) => {
+    //     fs.unlink(filePath);
+    //   })
+    // );
   }
 };
 
