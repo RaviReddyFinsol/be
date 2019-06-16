@@ -7,35 +7,52 @@ const ChildGroup = require("../models/childGroup");
 const { getUserIdFromToken } = require("../auth/token");
 
 const fs = require("fs");
+const validateName = require("../shared/methods");
+
+const mimeType = require("../shared/dictionaries");
 
 var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/childGroups");
+  destination: function(req, file, cb) {
+    const isValid = mimeType[file.mimetype];
+    let error = new Error("Invalid mime type");
+    if (isValid) {
+      error = null;
+    }
+    cb(error, "public/childGroups");
   },
-  filename: function (req, file, cb) {
+  filename: function(req, file, cb) {
     var id = uuid();
-    let imgType = file.mimetype.substring(file.mimetype.indexOf("/") + 1);
-    cb(null, id + "." + imgType);
+    const extension = mimeType[file.mimetype];
+    cb(null, id + "." + extension);
   }
 });
 
-var upload = multer({ storage: storage,limits: { fileSize: 200000 } }).single("image");
+var upload = multer({ storage: storage, limits: { fileSize: 200000 } }).single(
+  "image"
+);
 
-router.post("/", function (req, res) {
+router.post("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    upload(req, res, function (err) {
+    upload(req, res, function(err) {
       if (err) {
-        let error = "Something went wrong.Please try again"
+        let error = "Something went wrong.Please try again";
         if (err.code === "LIMIT_FILE_SIZE")
-          error = "Please select image less than 200kb"
-        return res
-          .status(201)
-          .json({ isSuccess: false, message: error });
+          error = "Please select image less than 200kb";
+        else if (err.message === "Invalid mime type")
+          error = "Please select valid image(JPG/JPEG/PNG)";
+        return res.status(201).json({ isSuccess: false, message: error });
       }
       let fileName = "";
       if (req.file !== undefined) {
         fileName = req.file.filename;
+      }
+      if (!validateName(req.body.groupName)) {
+        deleteFile(fileName);
+        return res.status(201).json({
+          isSuccess: false,
+          message: "Please enter valid Group name"
+        });
       }
       var childGroup = new ChildGroup({
         childGroupName: req.body.childGroupName,
@@ -52,11 +69,11 @@ router.post("/", function (req, res) {
           });
         })
         .catch(err => {
-          let errorMessage = "Something went wrong.Please try again"
+          let errorMessage = "Something went wrong.Please try again";
           if (err.errors !== undefined)
-            errorMessage = "Please select valid SubGroup"
-          else if (err.errmsg.includes("duplicate key error"))
-            errorMessage = "ChildGroup with same name already exists"
+            errorMessage = "Please select valid SubGroup";
+          else if (err.errmsg !== undefined && err.errmsg.includes("duplicate key error"))
+            errorMessage = "ChildGroup with same name already exists";
           res.status(201).json({
             isSuccess: false,
             message: errorMessage
@@ -72,32 +89,34 @@ router.post("/", function (req, res) {
   }
 });
 
-router.get("/", function (req, res) {
+router.get("/", function(req, res) {
   let userID = 0;
   if (req.query.userID !== undefined) {
     userID = getUserIdFromToken(req.query.userID);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
-  ChildGroup.find().populate('subGroup').exec(function (err, childGroups) {
-    var childGroupsMap = [];
-    if (childGroups) {
-      childGroups.forEach(function (childGroup) {
-        if (childGroup.imagePath !== "")
-          childGroup.imagePath = url + childGroup.imagePath;
-        if (childGroup.user === userID) childGroup.isEditable = true;
-        else childGroup.isEditable = false;
-        childGroup.subGroupName = childGroup.subGroup.subGroupName;
-        childGroupsMap.push(childGroup);
-      });
-      res.status(201).json({
-        isSuccess: true,
-        childGroups: childGroupsMap
-      });
-    }
-  });
+  ChildGroup.find()
+    .populate("subGroup")
+    .exec(function(err, childGroups) {
+      var childGroupsMap = [];
+      if (childGroups) {
+        childGroups.forEach(function(childGroup) {
+          if (childGroup.imagePath !== "")
+            childGroup.imagePath = url + childGroup.imagePath;
+          if (childGroup.user === userID) childGroup.isEditable = true;
+          else childGroup.isEditable = false;
+          childGroup.subGroupName = childGroup.subGroup.subGroupName;
+          childGroupsMap.push(childGroup);
+        });
+        res.status(201).json({
+          isSuccess: true,
+          childGroups: childGroupsMap
+        });
+      }
+    });
 });
 
-router.put("/", function (req, res) {
+router.put("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
@@ -105,11 +124,13 @@ router.put("/", function (req, res) {
       message: "Session expired.Please login again."
     });
   }
-  upload(req, res, function (err) {
+  upload(req, res, function(err) {
     if (err) {
-      let error = "Something went wrong.Please try again"
-        if (err.code === "LIMIT_FILE_SIZE")
-          error = "Please select image less than 200kb"
+      let error = "Something went wrong.Please try again";
+      if (err.code === "LIMIT_FILE_SIZE")
+        error = "Please select image less than 200kb";
+      else if (err.message === "Invalid mime type")
+        error = "Please select valid image(JPG/JPEG/PNG)";
       return res.status(201).json({
         isSuccess: false,
         message: error
@@ -120,7 +141,14 @@ router.put("/", function (req, res) {
     if (req.file !== undefined) {
       fileName = req.file.filename;
     }
-    ChildGroup.findById(req.query.childGroupID, function (err, childGroup) {
+    if (!validateName(req.body.groupName)) {
+      deleteFile(fileName);
+      return res.status(201).json({
+        isSuccess: false,
+        message: "Please enter valid Group name"
+      });
+    }
+    ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
@@ -143,11 +171,11 @@ router.put("/", function (req, res) {
               deleteFile(previousFile);
             })
             .catch(err => {
-              let errorMessage = "Something went wrong.Please try again"
+              let errorMessage = "Something went wrong.Please try again";
               if (err.errors !== undefined)
-                errorMessage = "Please select valid SubGroup"
-              else if (err.errmsg.includes("duplicate key error"))
-                errorMessage = "ChildGroup with same name already exists"
+                errorMessage = "Please select valid SubGroup";
+              else if (err.errmsg !== undefined && err.errmsg.includes("duplicate key error"))
+                errorMessage = "ChildGroup with same name already exists";
               res.status(201).json({
                 isSuccess: false,
                 message: errorMessage
@@ -167,11 +195,10 @@ router.put("/", function (req, res) {
 });
 
 //Get ChildGroup for Edit
-router.get("/childGroup", function (req, res) {
+router.get("/childGroup", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-
-    ChildGroup.findById(req.query.childGroupID, function (err, childGroup) {
+    ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
       if (err) {
         res.status(201).json({
           isSuccess: false,
@@ -198,12 +225,12 @@ router.get("/childGroup", function (req, res) {
   }
 });
 
-router.delete("/", function (req, res) {
+router.delete("/", function(req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     ChildGroup.findOneAndDelete(
       { _id: req.query.childGroupID, user: userID },
-      function (err, childGroup) {
+      function(err, childGroup) {
         if (err) {
           res.status(201).json({
             isSuccess: false,
