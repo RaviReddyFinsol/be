@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
+const logger = require("../logger/log4js");
 
 const ChildGroup = require("../models/childGroup");
 const { getUserIdFromToken } = require("../auth/token");
@@ -36,6 +37,7 @@ router.post("/", function(req, res) {
   if (userID !== 0) {
     upload(req, res, function(err) {
       if (err) {
+        logger.error(err);
         let error = "Something went wrong.Please try again";
         if (err.code === "LIMIT_FILE_SIZE")
           error = "Please select image less than 200kb";
@@ -69,6 +71,7 @@ router.post("/", function(req, res) {
           });
         })
         .catch(err => {
+          logger.error(err);
           let errorMessage = "Something went wrong.Please try again";
           if (err.errors !== undefined)
             errorMessage = "Please select valid SubGroup";
@@ -82,6 +85,7 @@ router.post("/", function(req, res) {
         });
     });
   } else {
+    logger.error(err);
     res.status(201).json({
       isSuccess: false,
       message: "Session expired.Please login again."
@@ -98,6 +102,7 @@ router.get("/", function(req, res) {
   ChildGroup.find()
     .populate("subGroup")
     .exec(function(err, childGroups) {
+      logger.error(err);
       var childGroupsMap = [];
       if (childGroups) {
         childGroups.forEach(function(childGroup) {
@@ -125,6 +130,7 @@ router.put("/", function(req, res) {
     });
   }
   upload(req, res, function(err) {
+    logger.error(err);
     if (err) {
       let error = "Something went wrong.Please try again";
       if (err.code === "LIMIT_FILE_SIZE")
@@ -150,6 +156,7 @@ router.put("/", function(req, res) {
     }
     ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "ChildGroup not exists"
@@ -171,6 +178,7 @@ router.put("/", function(req, res) {
               deleteFile(previousFile);
             })
             .catch(err => {
+              logger.error(err);
               let errorMessage = "Something went wrong.Please try again";
               if (err.errors !== undefined)
                 errorMessage = "Please select valid SubGroup";
@@ -200,6 +208,7 @@ router.get("/childGroup", function(req, res) {
   if (userID !== 0) {
     ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "ChildGroup not found"
@@ -232,6 +241,7 @@ router.delete("/", function(req, res) {
       { _id: req.query.childGroupID, user: userID },
       function(err, childGroup) {
         if (err) {
+          logger.error(err);
           res.status(201).json({
             isSuccess: false,
             message: "Something went wrong.Please try again"
@@ -255,11 +265,14 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = "/public/childGroups/" + fileName;
+    let filePath = __dirname + "/public/childGroups/" + fileName;
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath);
+      fs.unlink(filePath,(err) => {
+        if(err)
+          logger.error(err);
+      });
     } else {
-      console.log("File not found " + filePath);
+      logger.error("file not found " + fileName);
     }
   }
 };

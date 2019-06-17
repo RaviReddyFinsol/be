@@ -11,6 +11,7 @@ const catogeryRoutes = require("./routes/catogery");
 const { dbConnection } = require("./config");
 
 const app = express();
+const logger = require("./logger/log4js");
 
 mongoose
   .connect(dbConnection, { useNewUrlParser: true })
@@ -18,7 +19,7 @@ mongoose
     console.log("Connected to database!");
   })
   .catch(err => {
-    console.log("Connection failed!", err);
+    logger.error(err);
   });
 
 app.use(express.static(__dirname + "/public/groups"));

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
+const logger = require("../logger/log4js");
 
 const Group = require("../models/group");
 const { getUserIdFromToken } = require("../auth/token");
@@ -36,6 +37,7 @@ router.post("/", function(req, res) {
   if (userID !== 0) {
     upload(req, res, function(err) {
       if (err) {
+        logger.error(err);
         let error = "Something went wrong.Please try again";
         if (err.code === "LIMIT_FILE_SIZE")
           error = "Please select image less than 200kb";
@@ -68,6 +70,7 @@ router.post("/", function(req, res) {
           });
         })
         .catch(err => {
+          logger.error(err);
           let errorMessage = "Something went wrong.Please try again";
           if (
             err.errmsg !== undefined &&
@@ -120,6 +123,7 @@ router.put("/", function(req, res) {
   }
   upload(req, res, function(err) {
     if (err) {
+      logger.error(err);
       let error = "Something went wrong.Please try again";
       if (err.code === "LIMIT_FILE_SIZE")
         error = "Please select image less than 200kb";
@@ -144,6 +148,7 @@ router.put("/", function(req, res) {
     }
     Group.findById(req.query.groupID, function(err, group) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "Group not exists"
@@ -164,6 +169,7 @@ router.put("/", function(req, res) {
               });
             })
             .catch(err => {
+              logger.error(err);
               let errorMessage = "Something went wrong.Please try again";
               if (
                 err.errmsg !== undefined &&
@@ -194,6 +200,7 @@ router.get("/group", function(req, res) {
   if (userID !== 0) {
     Group.findById({ _id: req.query.groupID }, function(err, group) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "Group not found"
@@ -227,6 +234,7 @@ router.delete("/", function(req, res) {
       group
     ) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "Something went wrong.Please try again"
@@ -249,12 +257,17 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = fileName;
+    let filePath = __dirname + "/public/groups/" + fileName;
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath);
+      fs.unlink(filePath,(err) => {
+        if(err)
+          logger.error(err);
+      });
     } else {
+      logger.error("file not found " + fileName);
     }
   }
 };
+
 
 module.exports = router;

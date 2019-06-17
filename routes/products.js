@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
+const logger = require("../logger/log4js");
 
 const Product = require("../models/product");
 const { getUserIdFromToken } = require("../auth/token");
@@ -24,6 +25,7 @@ var upload = multer({ storage: storage }).array("image");
 router.post("/product/add", function(req, res) {
   upload(req, res, function(err) {
     if (err) {
+      logger.error(err);
       return res
         .status(201)
         .json({ isSuccess: false, message: "image not saved" });

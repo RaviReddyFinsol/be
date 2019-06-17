@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 var multer = require("multer");
 const uuid = require("uuid/v4");
+const logger = require("../logger/log4js");
 
 const SubGroup = require("../models/subGroup");
 const { getUserIdFromToken } = require("../auth/token");
@@ -37,6 +38,7 @@ router.post("/", function(req, res) {
   if (userID !== 0) {
     upload(req, res, function(err) {
       if (err) {
+        logger.error(err);
         let error = "Something went wrong.Please try again";
         if (err.code === "LIMIT_FILE_SIZE")
           error = "Please select image less than 200kb";
@@ -70,6 +72,7 @@ router.post("/", function(req, res) {
           });
         })
         .catch(err => {
+          logger.error(err);
           let errorMessage = "Something went wrong.Please try again";
           if (err.errors !== undefined)
             errorMessage = "Please select valid Group";
@@ -102,6 +105,7 @@ router.get("/", function(req, res) {
   SubGroup.find()
     .populate("group")
     .exec(function(err, subGroups) {
+      logger.error(err);
       var subGroupsMap = [];
       if (subGroups) {
         subGroups.forEach(function(subGroup) {
@@ -131,6 +135,7 @@ router.put("/", function(req, res) {
   }
   upload(req, res, function(err) {
     if (err) {
+      logger.error(err);
       let error = "Something went wrong.Please try again";
       if (err.code === "LIMIT_FILE_SIZE")
         error = "Please select image less than 200kb";
@@ -155,6 +160,7 @@ router.put("/", function(req, res) {
     }
     SubGroup.findById(req.query.subGroupID, function(err, subGroup) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "SubGroup not exists"
@@ -176,6 +182,7 @@ router.put("/", function(req, res) {
               });
             })
             .catch(err => {
+              logger.error(err);
               let errorMessage = "Something went wrong.Please try again";
               if (err.errors !== undefined)
                 errorMessage = "Please select valid Group";
@@ -205,6 +212,7 @@ router.get("/subGroup", function(req, res) {
   if (userID !== 0) {
     SubGroup.findById({ _id: req.query.subGroupID }, function(err, subGroup) {
       if (err) {
+        logger.error(err);
         res.status(201).json({
           isSuccess: false,
           message: "SubGroup not found"
@@ -238,6 +246,7 @@ router.delete("/", function(req, res) {
       { _id: req.query.subGroupID, user: userID },
       function(err, subGroup) {
         if (err) {
+          logger.error(err);
           res.status(201).json({
             isSuccess: false,
             message: "Something went wrong.Please try again"
@@ -261,11 +270,14 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = "/public/subGroups/" + fileName;
+    let filePath = __dirname + "/public/subGroups/" + fileName;
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath);
+      fs.unlink(filePath,(err) => {
+        if(err)
+          logger.error(err);
+      });
     } else {
-      console.log("File not found " + filePath);
+      logger.error("file not found " + fileName);
     }
   }
 };
