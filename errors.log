@@ -1,0 +1,7 @@
+[2019-06-18T20:13:27.803] [ERROR] exceptions - file not found D:\Code\VsCode - Copy\naturalremedy\routes\public\groups\
+[2019-06-18T20:13:33.598] [ERROR] exceptions - file not found D:\Code\VsCode - Copy\naturalremedy\routes\public\groups\17ab3854-ba26-4e3e-9e40-dfb55a2e76c4.png
+[2019-06-18T20:16:48.481] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }

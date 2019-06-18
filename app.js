@@ -9,7 +9,6 @@ const childGroupRoutes = require("./routes/childGroups");
 const productRoutes = require("./routes/products");
 const catogeryRoutes = require("./routes/catogery");
 const { dbConnection } = require("./config");
-
 const app = express();
 const logger = require("./logger/log4js");
 

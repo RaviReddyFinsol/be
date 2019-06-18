@@ -6,7 +6,7 @@ const logger = require("../logger/log4js");
 
 const SubGroup = require("../models/subGroup");
 const { getUserIdFromToken } = require("../auth/token");
-
+var path = require('path');
 const fs = require("fs");
 const validateName = require("../shared/methods");
 
@@ -32,8 +32,7 @@ var upload = multer({ storage: storage, limits: { fileSize: 200000 } }).single(
   "image"
 );
 
-router.post("/", function(req, res) {
- 
+router.post("/", function(req, res) { 
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     upload(req, res, function(err) {
@@ -50,11 +49,18 @@ router.post("/", function(req, res) {
       if (req.file !== undefined) {
         fileName = req.file.filename;
       }
+      if (!validateName(req.body.group)) {
+        deleteFile(fileName);
+        return res.status(201).json({
+          isSuccess: false,
+          message: "Please select valid Group"
+        });
+      }
       if (!validateName(req.body.subGroupName)) {
         deleteFile(fileName);
         return res.status(201).json({
           isSuccess: false,
-          message: "Please enter valid SubGroup name"
+          message: "Please select valid Sub Group name"
         });
       }
       var subGroup = new SubGroup({
@@ -151,11 +157,18 @@ router.put("/", function(req, res) {
     if (req.file !== undefined) {
       fileName = req.file.filename;
     }
-    if (!validateName(req.body.groupName)) {
+    if (!validateName(req.body.group)) {
       deleteFile(fileName);
       return res.status(201).json({
         isSuccess: false,
-        message: "Please enter valid Group name"
+        message: "Please select valid Group"
+      });
+    }
+    if (!validateName(req.body.subGroupName)) {
+      deleteFile(fileName);
+      return res.status(201).json({
+        isSuccess: false,
+        message: "Please select valid Sub Group name"
       });
     }
     SubGroup.findById(req.query.subGroupID, function(err, subGroup) {
@@ -168,8 +181,13 @@ router.put("/", function(req, res) {
         deleteFile(fileName);
       } else {
         if (subGroup.user === userID) {
-          const previousFile = subGroup.imagePath;
-          subGroup.imagePath = fileName;
+          let previousFile = "";
+          if (fileName === "" && req.body.imageURL !== "") {
+          }
+          else {
+            previousFile = subGroup.imagePath;
+            subGroup.imagePath = fileName;
+          }
           subGroup.group = req.body.group;
           subGroup.subGroupName = req.body.subGroupName;
           subGroup
@@ -239,7 +257,6 @@ router.get("/subGroup", function(req, res) {
 });
 
 router.delete("/", function(req, res) {
-  console.log(req.query);
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     SubGroup.findOneAndDelete(
@@ -270,7 +287,7 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = __dirname + "/public/subGroups/" + fileName;
+    let filePath = path.join(__dirname , "../public/groups/" , fileName);
     if (fs.existsSync(filePath)) {
       fs.unlink(filePath,(err) => {
         if(err)

@@ -8,12 +8,12 @@ const Group = require("../models/group");
 const { getUserIdFromToken } = require("../auth/token");
 
 const fs = require("fs");
-
+var path = require('path');
 const validateName = require("../shared/methods");
 const mimeType = require("../shared/dictionaries");
 
 var storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     const isValid = mimeType[file.mimetype];
     let error = new Error("Invalid mime type");
     if (isValid) {
@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
     }
     cb(error, "public/groups");
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     var id = uuid();
     const extension = mimeType[file.mimetype];
     cb(null, id + "." + extension);
@@ -32,10 +32,10 @@ var upload = multer({ storage: storage, limits: { fileSize: 200000 } }).single(
   "image"
 );
 
-router.post("/", function(req, res) {
+router.post("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    upload(req, res, function(err) {
+    upload(req, res, function (err) {
       if (err) {
         logger.error(err);
         let error = "Something went wrong.Please try again";
@@ -92,15 +92,15 @@ router.post("/", function(req, res) {
   }
 });
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   let userID = 0;
   if (req.query.userID !== undefined) {
     userID = getUserIdFromToken(req.query.userID);
   }
   const url = req.protocol + "://" + req.get("host") + "/";
-  Group.find({}, function(err, groups) {
+  Group.find({}, function (err, groups) {
     var groupsMap = [];
-    groups.forEach(function(group) {
+    groups.forEach(function (group) {
       if (group.imagePath !== "") group.imagePath = url + group.imagePath;
       if (group.user === userID) group.isEditable = true;
       else group.isEditable = false;
@@ -113,7 +113,7 @@ router.get("/", function(req, res) {
   });
 });
 
-router.put("/", function(req, res) {
+router.put("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
@@ -121,7 +121,7 @@ router.put("/", function(req, res) {
       message: "Session expired.Please login again."
     });
   }
-  upload(req, res, function(err) {
+  upload(req, res, function (err) {
     if (err) {
       logger.error(err);
       let error = "Something went wrong.Please try again";
@@ -146,7 +146,7 @@ router.put("/", function(req, res) {
         message: "Please enter valid Group name"
       });
     }
-    Group.findById(req.query.groupID, function(err, group) {
+    Group.findById(req.query.groupID, function (err, group) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -156,8 +156,13 @@ router.put("/", function(req, res) {
         deleteFile(fileName);
       } else {
         if (group.user === userID) {
-          const previousFile = group.imagePath;
-          group.imagePath = fileName;
+          let previousFile = "";
+          if (fileName === "" && req.body.imageURL !== "") {
+          }
+          else {
+            previousFile = group.imagePath;
+            group.imagePath = fileName;
+          }
           group.groupName = req.body.groupName;
           group
             .save()
@@ -195,10 +200,10 @@ router.put("/", function(req, res) {
 });
 
 //Get Group for Edit
-router.get("/group", function(req, res) {
+router.get("/group", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    Group.findById({ _id: req.query.groupID }, function(err, group) {
+    Group.findById({ _id: req.query.groupID }, function (err, group) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -226,10 +231,10 @@ router.get("/group", function(req, res) {
   }
 });
 
-router.delete("/", function(req, res) {
+router.delete("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    Group.findOneAndDelete({ _id: req.query.groupID, user: userID }, function(
+    Group.findOneAndDelete({ _id: req.query.groupID, user: userID }, function (
       err,
       group
     ) {
@@ -257,14 +262,14 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = __dirname + "/public/groups/" + fileName;
+    let filePath = path.join(__dirname , "../public/groups/" , fileName);
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath,(err) => {
-        if(err)
+      fs.unlink(filePath, (err) => {
+        if (err)
           logger.error(err);
       });
     } else {
-      logger.error("file not found " + fileName);
+      logger.error("file not found " + filePath);
     }
   }
 };
