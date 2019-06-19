@@ -5,3 +5,117 @@
   code: 'EPERM',
   syscall: 'unlink',
   path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-19T13:45:25.169] [ERROR] exceptions - null
+[2019-06-19T13:46:25.402] [ERROR] exceptions - { MongoError: E11000 duplicate key error collection: naturalremedy.groups index: groupName_1 dup key: { : "1234" }
+    at Function.create (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongodb-core\lib\error.js:43:12)
+    at toError (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongodb\lib\utils.js:149:22)
+    at coll.s.topology.insert (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongodb\lib\operations\collection_ops.js:859:39)
+    at D:\Code\VsCode - Copy\naturalremedy\node_modules\mongodb-core\lib\connection\pool.js:532:18
+    at process._tickCallback (internal/process/next_tick.js:61:11)
+  driver: true,
+  name: 'MongoError',
+  index: 0,
+  code: 11000,
+  errmsg:
+   'E11000 duplicate key error collection: naturalremedy.groups index: groupName_1 dup key: { : "1234" }',
+  [Symbol(mongoErrorContextSymbol)]: {} }
+[2019-06-19T13:46:25.404] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-19T14:43:14.514] [ERROR] exceptions - null
+[2019-06-19T17:00:34.267] [ERROR] exceptions - null
+[2019-06-19T17:00:45.364] [ERROR] exceptions - null
+[2019-06-19T17:00:52.760] [ERROR] exceptions - null
+[2019-06-19T17:00:53.966] [ERROR] exceptions - null
+[2019-06-19T17:00:59.976] [ERROR] exceptions - null
+[2019-06-19T17:01:06.206] [ERROR] exceptions - null
+[2019-06-19T17:01:12.087] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-19T17:01:13.554] [ERROR] exceptions - null
+[2019-06-19T17:01:16.503] [ERROR] exceptions - null
+[2019-06-19T17:01:20.136] [ERROR] exceptions - null
+[2019-06-19T17:01:24.214] [ERROR] exceptions - undefined
+[2019-06-19T17:01:24.219] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-19T17:01:25.546] [ERROR] exceptions - null
+[2019-06-19T17:01:27.788] [ERROR] exceptions - null
+[2019-06-19T17:01:51.754] [ERROR] exceptions - null
+[2019-06-19T17:01:52.730] [ERROR] exceptions - null
+[2019-06-19T17:02:46.544] [ERROR] exceptions - null
+[2019-06-19T17:02:53.375] [ERROR] exceptions - null
+[2019-06-19T17:02:56.530] [ERROR] exceptions - null
+[2019-06-19T17:03:00.132] [ERROR] exceptions - null
+[2019-06-19T17:03:02.888] [ERROR] exceptions - null
+[2019-06-19T17:03:29.246] [ERROR] exceptions - null
+[2019-06-19T17:05:21.106] [ERROR] exceptions - null
+[2019-06-19T17:15:54.547] [ERROR] exceptions - null
+[2019-06-19T17:20:27.435] [ERROR] exceptions - null
+[2019-06-19T17:20:41.118] [ERROR] exceptions - null
+[2019-06-19T17:22:38.155] [ERROR] exceptions - null
+[2019-06-19T17:25:24.597] [ERROR] exceptions - null
+[2019-06-19T17:25:26.475] [ERROR] exceptions - null
+[2019-06-19T17:25:30.620] [ERROR] exceptions - null
+[2019-06-19T17:25:50.098] [ERROR] exceptions - null
+[2019-06-19T17:25:58.870] [ERROR] exceptions - null
+[2019-06-19T17:27:15.704] [ERROR] exceptions - null
+[2019-06-19T17:28:15.787] [ERROR] exceptions - null
+[2019-06-19T17:28:33.214] [ERROR] exceptions - null
+[2019-06-19T17:28:57.151] [ERROR] exceptions - null
+[2019-06-19T17:29:03.966] [ERROR] exceptions - null
+[2019-06-19T17:30:15.541] [ERROR] exceptions - null
+[2019-06-19T17:33:11.211] [ERROR] exceptions - null
+[2019-06-19T17:41:32.424] [ERROR] exceptions - null
+[2019-06-19T17:41:34.293] [ERROR] exceptions - null
+[2019-06-19T17:41:37.643] [ERROR] exceptions - null
+[2019-06-19T17:41:51.809] [ERROR] exceptions - null
+[2019-06-19T17:51:08.460] [ERROR] exceptions - null
+[2019-06-19T17:53:26.893] [ERROR] exceptions - null
+[2019-06-19T17:54:22.214] [ERROR] exceptions - null
+[2019-06-19T17:54:46.058] [ERROR] exceptions - null
+[2019-06-19T17:55:00.968] [ERROR] exceptions - null
+[2019-06-19T17:55:43.240] [ERROR] exceptions - null
+[2019-06-19T18:38:11.310] [ERROR] exceptions - null
+[2019-06-19T18:38:26.824] [ERROR] exceptions - null
+[2019-06-19T18:40:48.404] [ERROR] exceptions - null
+[2019-06-19T18:40:51.627] [ERROR] exceptions - null
+[2019-06-19T18:40:55.866] [ERROR] exceptions - null
+[2019-06-19T18:41:01.169] [ERROR] exceptions - null
+[2019-06-19T18:41:02.580] [ERROR] exceptions - null
+[2019-06-19T18:44:25.935] [ERROR] exceptions - null
+[2019-06-19T18:44:51.298] [ERROR] exceptions - null
+[2019-06-19T18:58:44.965] [ERROR] exceptions - null
+[2019-06-19T18:58:50.191] [ERROR] exceptions - null
+[2019-06-19T18:58:54.402] [ERROR] exceptions - null
+[2019-06-19T18:58:58.573] [ERROR] exceptions - null
+[2019-06-19T18:59:01.346] [ERROR] exceptions - null
+[2019-06-19T19:03:01.343] [ERROR] exceptions - null
+[2019-06-19T19:07:47.777] [ERROR] exceptions - null
+[2019-06-19T19:07:49.629] [ERROR] exceptions - null
+[2019-06-19T19:21:50.150] [ERROR] exceptions - null
+[2019-06-19T19:23:15.291] [ERROR] exceptions - null
+[2019-06-19T19:30:21.544] [ERROR] exceptions - null
+[2019-06-19T19:30:24.275] [ERROR] exceptions - null
+[2019-06-19T19:30:26.400] [ERROR] exceptions - null
+[2019-06-19T19:30:33.774] [ERROR] exceptions - null
+[2019-06-19T19:30:35.218] [ERROR] exceptions - null
+[2019-06-19T19:30:37.303] [ERROR] exceptions - null
+[2019-06-19T19:34:20.323] [ERROR] exceptions - null
+[2019-06-19T19:34:51.098] [ERROR] exceptions - null
+[2019-06-19T19:40:13.740] [ERROR] exceptions - null
+[2019-06-19T19:40:23.014] [ERROR] exceptions - null
+[2019-06-19T19:40:23.803] [ERROR] exceptions - null
+[2019-06-19T19:40:26.080] [ERROR] exceptions - null
+[2019-06-19T19:40:28.669] [ERROR] exceptions - null
+[2019-06-19T19:41:45.777] [ERROR] exceptions - null
+[2019-06-19T19:41:50.913] [ERROR] exceptions - null
+[2019-06-19T19:41:52.949] [ERROR] exceptions - null
+[2019-06-19T19:41:54.073] [ERROR] exceptions - null
+[2019-06-19T19:48:01.584] [ERROR] exceptions - null
