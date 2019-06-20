@@ -262,7 +262,7 @@ router.delete("/", function (req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = path.join(__dirname , "../public/groups/" , fileName);
+    let filePath = path.join(__dirname, "../public/groups/", fileName);
     if (fs.existsSync(filePath)) {
       fs.unlink(filePath, (err) => {
         if (err)

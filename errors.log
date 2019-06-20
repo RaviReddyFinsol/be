@@ -119,3 +119,194 @@
 [2019-06-19T19:41:52.949] [ERROR] exceptions - null
 [2019-06-19T19:41:54.073] [ERROR] exceptions - null
 [2019-06-19T19:48:01.584] [ERROR] exceptions - null
+[2019-06-20T12:45:37.593] [ERROR] exceptions - null
+[2019-06-20T12:46:11.382] [ERROR] exceptions - null
+[2019-06-20T12:48:16.631] [ERROR] exceptions - null
+[2019-06-20T12:48:18.708] [ERROR] exceptions - null
+[2019-06-20T12:48:24.949] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T12:51:33.521] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T12:52:17.833] [ERROR] exceptions - null
+[2019-06-20T12:54:28.588] [ERROR] exceptions - null
+[2019-06-20T12:54:35.577] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T12:55:01.364] [ERROR] exceptions - null
+[2019-06-20T12:55:04.438] [ERROR] exceptions - null
+[2019-06-20T12:56:08.671] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:02:03.787] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:02:24.449] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:02:51.933] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:05:41.949] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:10:58.773] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:11:04.036] [ERROR] exceptions - null
+[2019-06-20T13:11:13.429] [ERROR] exceptions - { ValidationError: SubGroup validation failed: group: Cast to ObjectID failed for value "null" at path "group"
+    at ValidationError.inspect (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\error\validation.js:59:24)
+    at formatValue (internal/util/inspect.js:493:31)
+    at inspect (internal/util/inspect.js:191:10)
+    at formatWithOptions (util.js:84:12)
+    at Object.format (util.js:72:10)
+    at basicLayout (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\layouts.js:65:57)
+    at app (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\appenders\file.js:55:18)
+    at categoryAppenders.forEach (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\log4js.js:42:5)
+    at Array.forEach (<anonymous>)
+    at sendLogEventToAppender (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\log4js.js:41:21)
+    at listeners.forEach.l (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\clustering.js:16:26)
+    at Array.forEach (<anonymous>)
+    at sendToListeners (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\clustering.js:16:13)
+    at Object.send (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\clustering.js:78:7)
+    at Logger._log (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\logger.js:86:16)
+    at Logger.log (D:\Code\VsCode - Copy\naturalremedy\node_modules\log4js\lib\logger.js:69:12)
+  errors:
+   { group:
+      { CastError: Cast to ObjectID failed for value "null" at path "group"
+          at new CastError (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\error\cast.js:29:11)
+          at model.$set (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\document.js:1030:7)
+          at model.set [as group] (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\helpers\document\compile.js:125:26)
+          at D:\Code\VsCode - Copy\naturalremedy\routes\subGroups.js:192:26
+          at D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\model.js:4759:16
+          at D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\query.js:4099:12
+          at process.nextTick (D:\Code\VsCode - Copy\naturalremedy\node_modules\mongoose\lib\query.js:2681:28)
+          at process._tickCallback (internal/process/next_tick.js:61:11)
+        message: 'Cast to ObjectID failed for value "null" at path "group"',
+        name: 'CastError',
+        stringValue: '"null"',
+        kind: 'ObjectID',
+        value: 'null',
+        path: 'group',
+        reason: [MongooseError] } },
+  _message: 'SubGroup validation failed',
+  name: 'ValidationError' }
+[2019-06-20T13:11:13.431] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:11:27.895] [ERROR] exceptions - null
+[2019-06-20T13:11:28.618] [ERROR] exceptions - null
+[2019-06-20T13:11:48.612] [ERROR] exceptions - null
+[2019-06-20T13:11:54.161] [ERROR] exceptions - null
+[2019-06-20T13:11:55.174] [ERROR] exceptions - null
+[2019-06-20T13:11:57.389] [ERROR] exceptions - null
+[2019-06-20T13:12:24.092] [ERROR] exceptions - null
+[2019-06-20T13:12:25.341] [ERROR] exceptions - null
+[2019-06-20T13:12:38.268] [ERROR] exceptions - null
+[2019-06-20T13:12:39.577] [ERROR] exceptions - null
+[2019-06-20T13:12:47.483] [ERROR] exceptions - null
+[2019-06-20T13:12:52.241] [ERROR] exceptions - null
+[2019-06-20T13:12:53.855] [ERROR] exceptions - null
+[2019-06-20T13:13:22.144] [ERROR] exceptions - null
+[2019-06-20T13:13:26.719] [ERROR] exceptions - null
+[2019-06-20T13:13:27.768] [ERROR] exceptions - null
+[2019-06-20T13:13:29.149] [ERROR] exceptions - null
+[2019-06-20T13:13:30.616] [ERROR] exceptions - null
+[2019-06-20T13:13:31.825] [ERROR] exceptions - null
+[2019-06-20T13:13:33.585] [ERROR] exceptions - null
+[2019-06-20T13:13:34.518] [ERROR] exceptions - null
+[2019-06-20T13:14:02.878] [ERROR] exceptions - null
+[2019-06-20T13:14:11.390] [ERROR] exceptions - null
+[2019-06-20T13:14:18.072] [ERROR] exceptions - null
+[2019-06-20T13:14:19.053] [ERROR] exceptions - null
+[2019-06-20T13:14:23.603] [ERROR] exceptions - null
+[2019-06-20T13:14:27.762] [ERROR] exceptions - null
+[2019-06-20T13:14:44.266] [ERROR] exceptions - undefined
+[2019-06-20T13:14:44.269] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:15:12.174] [ERROR] exceptions - null
+[2019-06-20T13:15:29.424] [ERROR] exceptions - null
+[2019-06-20T13:17:07.532] [ERROR] exceptions - null
+[2019-06-20T13:18:57.679] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:20:05.965] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:20:17.653] [ERROR] exceptions - null
+[2019-06-20T13:20:18.942] [ERROR] exceptions - null
+[2019-06-20T13:21:39.117] [ERROR] exceptions - null
+[2019-06-20T13:21:59.571] [ERROR] exceptions - null
+[2019-06-20T13:23:21.060] [ERROR] exceptions - null
+[2019-06-20T13:23:28.693] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:23:38.541] [ERROR] exceptions - null
+[2019-06-20T13:23:42.643] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:24:46.357] [ERROR] exceptions - null
+[2019-06-20T13:24:48.688] [ERROR] exceptions - null
+[2019-06-20T13:24:51.075] [ERROR] exceptions - null
+[2019-06-20T13:24:51.861] [ERROR] exceptions - null
+[2019-06-20T13:25:24.976] [ERROR] exceptions - null
+[2019-06-20T13:25:41.950] [ERROR] exceptions - null
+[2019-06-20T13:25:43.266] [ERROR] exceptions - null
+[2019-06-20T13:25:45.008] [ERROR] exceptions - null
+[2019-06-20T13:27:10.638] [ERROR] exceptions - null
+[2019-06-20T13:27:48.067] [ERROR] exceptions - null
+[2019-06-20T13:27:55.536] [ERROR] exceptions - null
+[2019-06-20T13:27:58.191] [ERROR] exceptions - null
+[2019-06-20T13:28:54.571] [ERROR] exceptions - null
+[2019-06-20T13:29:07.961] [ERROR] exceptions - null
+[2019-06-20T13:29:27.833] [ERROR] exceptions - null
+[2019-06-20T13:29:32.219] [ERROR] exceptions - { [Error: EPERM: operation not permitted, unlink 'D:\Code\VsCode - Copy\naturalremedy\public\groups']
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\Code\\VsCode - Copy\\naturalremedy\\public\\groups' }
+[2019-06-20T13:39:02.210] [ERROR] exceptions - null
+[2019-06-20T13:39:53.828] [ERROR] exceptions - null
+[2019-06-20T13:40:02.111] [ERROR] exceptions - null
+[2019-06-20T13:40:09.472] [ERROR] exceptions - null
+[2019-06-20T13:41:37.682] [ERROR] exceptions - null
+[2019-06-20T13:41:39.390] [ERROR] exceptions - null
+[2019-06-20T13:59:30.963] [ERROR] exceptions - null
+[2019-06-20T14:00:05.548] [ERROR] exceptions - null
+[2019-06-20T14:01:08.373] [ERROR] exceptions - null
+[2019-06-20T14:01:43.916] [ERROR] exceptions - null
+[2019-06-20T14:01:44.541] [ERROR] exceptions - null
+[2019-06-20T14:02:05.351] [ERROR] exceptions - null
+[2019-06-20T14:02:20.121] [ERROR] exceptions - null

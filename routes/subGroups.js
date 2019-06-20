@@ -13,7 +13,7 @@ const validateName = require("../shared/methods");
 const mimeType = require("../shared/dictionaries");
 
 var storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     const isValid = mimeType[file.mimetype];
     let error = new Error("Invalid mime type");
     if (isValid) {
@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
     }
     cb(error, "public/subGroups");
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     var id = uuid();
     const extension = mimeType[file.mimetype];
     cb(null, id + "." + extension);
@@ -32,16 +32,16 @@ var upload = multer({ storage: storage, limits: { fileSize: 200000 } }).single(
   "image"
 );
 
-router.post("/", function(req, res) { 
+router.post("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    upload(req, res, function(err) {
+    upload(req, res, function (err) {
       if (err) {
         logger.error(err);
         let error = "Something went wrong.Please try again";
         if (err.code === "LIMIT_FILE_SIZE")
           error = "Please select image less than 200kb";
-          else if (err.message === "Invalid mime type")
+        else if (err.message === "Invalid mime type")
           error = "Please select valid image(JPG/JPEG/PNG)";
         return res.status(201).json({ isSuccess: false, message: error });
       }
@@ -60,7 +60,7 @@ router.post("/", function(req, res) {
         deleteFile(fileName);
         return res.status(201).json({
           isSuccess: false,
-          message: "Please select valid Sub Group name"
+          message: "Please enter valid Sub Group name"
         });
       }
       var subGroup = new SubGroup({
@@ -102,7 +102,7 @@ router.post("/", function(req, res) {
   }
 });
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   let userID = 0;
   if (req.query.userID !== undefined) {
     userID = getUserIdFromToken(req.query.userID);
@@ -110,16 +110,17 @@ router.get("/", function(req, res) {
   const url = req.protocol + "://" + req.get("host") + "/";
   SubGroup.find()
     .populate("group")
-    .exec(function(err, subGroups) {
+    .exec(function (err, subGroups) {
       logger.error(err);
       var subGroupsMap = [];
       if (subGroups) {
-        subGroups.forEach(function(subGroup) {
+        subGroups.forEach(function (subGroup) {
           if (subGroup.imagePath != "")
             subGroup.imagePath = url + subGroup.imagePath;
           if (subGroup.user === userID) subGroup.isEditable = true;
           else subGroup.isEditable = false;
-          subGroup.groupName = subGroup.group.groupName;
+          if (subGroup.group)
+            subGroup.groupName = subGroup.group.groupName;
           subGroupsMap.push(subGroup);
         });
         res.status(201).json({
@@ -130,8 +131,8 @@ router.get("/", function(req, res) {
     });
 });
 
-router.put("/", function(req, res) {
-  
+router.put("/", function (req, res) {
+
   let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
@@ -139,14 +140,14 @@ router.put("/", function(req, res) {
       message: "Session expired.Please login again."
     });
   }
-  upload(req, res, function(err) {
+  upload(req, res, function (err) {
     if (err) {
       logger.error(err);
       let error = "Something went wrong.Please try again";
       if (err.code === "LIMIT_FILE_SIZE")
         error = "Please select image less than 200kb";
-        else if (err.message === "Invalid mime type")
-          error = "Please select valid image(JPG/JPEG/PNG)";
+      else if (err.message === "Invalid mime type")
+        error = "Please select valid image(JPG/JPEG/PNG)";
       return res.status(201).json({
         isSuccess: false,
         message: error
@@ -171,7 +172,7 @@ router.put("/", function(req, res) {
         message: "Please select valid Sub Group name"
       });
     }
-    SubGroup.findById(req.query.subGroupID, function(err, subGroup) {
+    SubGroup.findById(req.query.subGroupID, function (err, subGroup) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -225,10 +226,12 @@ router.put("/", function(req, res) {
 });
 
 //Get SubGroup for Edit
-router.get("/subGroup", function(req, res) {
+router.get("/subGroup", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    SubGroup.findById({ _id: req.query.subGroupID }, function(err, subGroup) {
+    SubGroup.findById({ _id: req.query.subGroupID })
+    .populate("group")
+    .exec(function (err, subGroup) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -246,6 +249,8 @@ router.get("/subGroup", function(req, res) {
             const url = req.protocol + "://" + req.get("host") + "/";
             subGroup.imagePath = url + subGroup.imagePath;
           }
+          if (!subGroup.group)
+          subGroup.groupName = "";
           res.status(201).json({
             isSuccess: true,
             subGroup: subGroup
@@ -256,12 +261,12 @@ router.get("/subGroup", function(req, res) {
   }
 });
 
-router.delete("/", function(req, res) {
+router.delete("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     SubGroup.findOneAndDelete(
       { _id: req.query.subGroupID, user: userID },
-      function(err, subGroup) {
+      function (err, subGroup) {
         if (err) {
           logger.error(err);
           res.status(201).json({
@@ -287,10 +292,10 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = path.join(__dirname , "../public/groups/" , fileName);
+    let filePath = path.join(__dirname, "../public/groups/", fileName);
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath,(err) => {
-        if(err)
+      fs.unlink(filePath, (err) => {
+        if (err)
           logger.error(err);
       });
     } else {

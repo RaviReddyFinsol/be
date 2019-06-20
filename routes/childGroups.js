@@ -13,7 +13,7 @@ const validateName = require("../shared/methods");
 const mimeType = require("../shared/dictionaries");
 
 var storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     const isValid = mimeType[file.mimetype];
     let error = new Error("Invalid mime type");
     if (isValid) {
@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
     }
     cb(error, "public/childGroups");
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     var id = uuid();
     const extension = mimeType[file.mimetype];
     cb(null, id + "." + extension);
@@ -32,10 +32,10 @@ var upload = multer({ storage: storage, limits: { fileSize: 200000 } }).single(
   "image"
 );
 
-router.post("/", function(req, res) {
+router.post("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    upload(req, res, function(err) {
+    upload(req, res, function (err) {
       if (err) {
         logger.error(err);
         let error = "Something went wrong.Please try again";
@@ -100,7 +100,7 @@ router.post("/", function(req, res) {
   }
 });
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   let userID = 0;
   if (req.query.userID !== undefined) {
     userID = getUserIdFromToken(req.query.userID);
@@ -108,16 +108,17 @@ router.get("/", function(req, res) {
   const url = req.protocol + "://" + req.get("host") + "/";
   ChildGroup.find()
     .populate("subGroup")
-    .exec(function(err, childGroups) {
+    .exec(function (err, childGroups) {
       logger.error(err);
       var childGroupsMap = [];
       if (childGroups) {
-        childGroups.forEach(function(childGroup) {
+        childGroups.forEach(function (childGroup) {
           if (childGroup.imagePath !== "")
             childGroup.imagePath = url + childGroup.imagePath;
           if (childGroup.user === userID) childGroup.isEditable = true;
           else childGroup.isEditable = false;
-          childGroup.subGroupName = childGroup.subGroup.subGroupName;
+          if (childGroup.subGroup)
+            childGroup.subGroupName = childGroup.subGroup.subGroupName;
           childGroupsMap.push(childGroup);
         });
         res.status(201).json({
@@ -128,7 +129,7 @@ router.get("/", function(req, res) {
     });
 });
 
-router.put("/", function(req, res) {
+router.put("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID === 0) {
     return res.status(201).json({
@@ -136,7 +137,7 @@ router.put("/", function(req, res) {
       message: "Session expired.Please login again."
     });
   }
-  upload(req, res, function(err) {
+  upload(req, res, function (err) {
     logger.error(err);
     if (err) {
       let error = "Something went wrong.Please try again";
@@ -168,7 +169,7 @@ router.put("/", function(req, res) {
         message: "Please select valid Sub Group"
       });
     }
-    ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
+    ChildGroup.findById(req.query.childGroupID, function (err, childGroup) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -222,10 +223,10 @@ router.put("/", function(req, res) {
 });
 
 //Get ChildGroup for Edit
-router.get("/childGroup", function(req, res) {
+router.get("/childGroup", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
-    ChildGroup.findById(req.query.childGroupID, function(err, childGroup) {
+    ChildGroup.findById(req.query.childGroupID, function (err, childGroup) {
       if (err) {
         logger.error(err);
         res.status(201).json({
@@ -253,12 +254,12 @@ router.get("/childGroup", function(req, res) {
   }
 });
 
-router.delete("/", function(req, res) {
+router.delete("/", function (req, res) {
   let userID = getUserIdFromToken(req.query.userID);
   if (userID !== 0) {
     ChildGroup.findOneAndDelete(
       { _id: req.query.childGroupID, user: userID },
-      function(err, childGroup) {
+      function (err, childGroup) {
         if (err) {
           logger.error(err);
           res.status(201).json({
@@ -284,10 +285,10 @@ router.delete("/", function(req, res) {
 
 const deleteFile = fileName => {
   if (fileName !== undefined) {
-    let filePath = path.join(__dirname , "../public/groups/" , fileName);
+    let filePath = path.join(__dirname, "../public/groups/", fileName);
     if (fs.existsSync(filePath)) {
-      fs.unlink(filePath,(err) => {
-        if(err)
+      fs.unlink(filePath, (err) => {
+        if (err)
           logger.error(err);
       });
     } else {
